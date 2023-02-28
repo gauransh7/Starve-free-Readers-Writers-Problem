@@ -92,7 +92,7 @@ struct Semaphore{
         // If all resources are busy, push the process into the waiting queue and 'block' it
         if(semaphore < 0){
             FIFO->push(pID);
-            ProcessControlBlock *pcb = FIFO->rear;
+            PCB *pcb = FIFO->rear;
             block(pcb);
         }
     }
@@ -103,7 +103,7 @@ struct Semaphore{
 
         // If there are any processes waiting for execution, pop from the waiting queue and wake the process up
         if(semaphore <= 0){
-            ProcessControlBlock *pcb = FIFO->pop();
+            PCB *pcb = FIFO->pop();
             wakeup(pcb);
         }
     }
@@ -112,7 +112,7 @@ struct Semaphore{
 ```
 
 ### Writers Starve solution
-This is the solution to the first reader-writer's problem. Here, there is a chance that the writers starve. 
+In this solution to the reader-writer's problem, there is a chance that the writers process will starve. 
 
 The global variables (that are shared across all the readers and writers) are as shown below.
 
@@ -147,7 +147,7 @@ do{
 
     // Remainder Section
 
-}while(true);
+} while (true);
 ```
 Here, if a reader is waiting for a writer process to signal the `rw_mutex`, all the other readers are waiting on `mutex`. After the writer process signals the `mutex`, all the readers can simultaneously perform the read operations. Till all the readers are done, all the writers are paused on `rw_mutex`, thus, causing starvation.
 
@@ -168,13 +168,13 @@ do{
 
    // Remainder Section
 
-}while(true);
+} while (true);
 ```
 
 
 ### Commonly Used Solution (Starve Free)
 
-In the aforementioned method, writer process starve because there was nothing to deter readers from repeatedly accessing the writers' resource. In this approach, a new mutex lock is shown that is implemented utilising the semaphore `in_mutex`. The procedure shown in the above solution can be entered by the process that has access to this mutex lock, giving it access to the resource. As all processes are pushed into the FIFO queue of the semaphore `in_mutex`, this implements a check to the readers who arrive after the writers. As a result, this algorithm does not starve.
+In the aforementioned method, writer process starve because there was nothing that stops readers from repeatedly accessing the the common resource. In this approach, a new mutex lock is shown that is implemented utilising the semaphore `in_mutex`. The procedure shown in the above solution can be entered by the process that has access to this mutex lock, giving it access to the resource. As all processes are pushed into the FIFO queue of the semaphore `in_mutex`, this implements a check to the readers who arrive after the writers. As a result, this algorithm does not starve.
 
 #### Global Variables
 ```cpp
@@ -212,7 +212,7 @@ do{
 
    // Remainder Section
 
-}while(true);
+} while (true);
 ```
 Initially, `wait()` function is called for `in_mutex`. If a reader is waiting for a writer process, the reader is queued in the FIFO queue of the `in_mutex` (rather than `mutex`) with the fellow writers. Thus, in_mutex acts as a medium which ensures that all the processes have the same priority irrespective of their type being reader or writer.
 
@@ -236,7 +236,7 @@ do{
 
     // Remainder Section
 
-}while(true);
+} while (true);
 ```
 Like the readers, the writers are also queued in the FIFO queue of `in_mutex` by calling `wait()` for `in_mutex`.
 
